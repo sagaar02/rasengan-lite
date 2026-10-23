@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Rasengan Lite — Lightweight webcam-based AR chakra simulator using plain HTML, CSS, and JavaScript.">
+  <title>Rasengan Lite — AR Chakra Experience</title>
+  
+  <!-- Modern Typography -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  
+  <!-- Stylesheet -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Ambient background glow elements -->
+  <div class="ambient-glow glow-top" aria-hidden="true"></div>
+  <div class="ambient-glow glow-bottom" aria-hidden="true"></div>
+
+  <div class="app-container">
+    <!-- Header -->
+    <header class="app-header">
+      <div class="badge-tag">
+        <span class="badge-pulse"></span>
+        <span>STAGE 5 • POLISHED CONTROLS & AUDIO</span>
+      </div>
+      <h1 class="app-title">RASENGAN <span class="title-highlight">LITE</span></h1>
+      <p class="app-subtitle">Lightweight Augmented Reality • Optical Hand Tracking Experience</p>
+    </header>
+
+    <!-- Main Viewport Section -->
+    <main class="main-content">
+      <div class="viewport-card">
+        <!-- Futuristic Viewport Border Accents -->
+        <div class="corner-accent top-left" aria-hidden="true"></div>
+        <div class="corner-accent top-right" aria-hidden="true"></div>
+        <div class="corner-accent bottom-left" aria-hidden="true"></div>
+        <div class="corner-accent bottom-right" aria-hidden="true"></div>
+
+        <div class="viewport-wrapper" id="viewport-wrapper">
+          <!-- Webcam Video Element (Mirrored via CSS) -->
+          <video 
+            id="webcam-video" 
+            playsinline 
+            muted 
+            aria-label="Webcam feed preview"
+          ></video>
+
+          <!-- Transparent Overlay Canvas for AR VFX -->
+          <canvas 
+            id="ar-canvas" 
+            aria-label="Augmented reality rendering canvas"
+          ></canvas>
+
+          <!-- Standby Placeholder Overlay -->
+          <div class="viewport-placeholder" id="viewport-placeholder" role="status" aria-live="polite">
+            <div class="placeholder-icon-wrap" aria-hidden="true">
+              <svg class="reticle-svg" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="50" cy="50" r="44" stroke="currentColor" stroke-width="1.5" stroke-dasharray="6 4" class="spin-slow" />
+                <circle cx="50" cy="50" r="32" stroke="currentColor" stroke-width="2" class="pulse-ring" />
+                <circle cx="50" cy="50" r="18" stroke="currentColor" stroke-width="1.5" stroke-dasharray="3 3" class="spin-reverse" />
+                <circle cx="50" cy="50" r="4" fill="currentColor" />
+                <path d="M50 6 V18 M50 82 V94 M6 50 H18 M82 50 H94" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+              </svg>
+            </div>
+            <h2 class="placeholder-title" id="placeholder-title">Webcam Standby</h2>
+            <p class="placeholder-desc" id="placeholder-desc">
+              Camera preview is currently inactive. Click <strong>Start Camera</strong> to begin.
+            </p>
+          </div>
+        </div>
+
+        <!-- Telemetry & Status Bar -->
+        <div class="status-bar" role="region" aria-label="System Status">
+          <div class="status-item">
+            <span class="status-label">Camera</span>
+            <div class="status-value-group">
+              <span class="status-dot dot-off" id="camera-status-dot" aria-hidden="true"></span>
+              <span class="status-text" id="camera-status-text">Camera Off</span>
+            </div>
+          </div>
+
+          <div class="status-divider" aria-hidden="true"></div>
+
+          <div class="status-item">
+            <span class="status-label">Hand Tracking</span>
+            <div class="status-value-group">
+              <span class="status-dot dot-idle" id="tracking-status-dot" aria-hidden="true"></span>
+              <span class="status-text" id="tracking-status-text">Not Started</span>
+            </div>
+          </div>
+
+          <div class="status-divider" aria-hidden="true"></div>
+
+          <div class="status-item">
+            <span class="status-label">Chakra Sound</span>
+            <div class="status-value-group">
+              <span class="status-dot dot-idle" id="sound-status-dot" aria-hidden="true"></span>
+              <span class="status-text" id="sound-status-text">Muted</span>
+            </div>
+          </div>
+
+          <div class="status-divider" aria-hidden="true"></div>
+
+          <div class="status-item">
+            <span class="status-label">Target FPS</span>
+            <span class="status-text mono" id="fps-counter">60 FPS</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Control Toolbar -->
+      <section class="controls-section" aria-label="Camera Controls">
+        <button 
+          id="btn-start" 
+          class="btn btn-primary" 
+          type="button"
+          aria-label="Start Camera button"
+        >
+          <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <polygon points="5 3 19 12 5 21 5 3"></polygon>
+          </svg>
+          <span>Start Camera</span>
+        </button>
+
+        <button 
+          id="btn-stop" 
+          class="btn btn-secondary" 
+          type="button" 
+          disabled
+          aria-label="Stop Camera button"
+        >
+          <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <rect x="6" y="6" width="12" height="12"></rect>
+          </svg>
+          <span>Stop Camera</span>
+        </button>
+
+        <button 
+          id="btn-toggle-sound" 
+          class="btn btn-secondary btn-toggle" 
+          type="button" 
+          aria-pressed="false"
+          aria-label="Toggle Chakra Sound"
+          title="Toggle synthetic chakra whirling audio"
+        >
+          <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+            <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+          </svg>
+          <span id="sound-toggle-text">Sound: OFF</span>
+        </button>
+
+        <button 
+          id="btn-toggle-skeleton" 
+          class="btn btn-secondary btn-toggle" 
+          type="button" 
+          aria-pressed="false"
+          aria-label="Toggle Debug Hand Skeleton overlay"
+          title="Toggle hand landmark skeleton overlay"
+        >
+          <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M18 11V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v0"></path>
+            <path d="M14 10V4a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v2"></path>
+            <path d="M10 10.5V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v8"></path>
+            <path d="M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34l-3.6-3.6a2 2 0 0 1 2.83-2.82L7 15"></path>
+          </svg>
+          <span id="skeleton-toggle-text">Skeleton: OFF</span>
+        </button>
+      </section>
+
+      <!-- Secondary Settings Toolbar: Particle Density & User Guidance -->
+      <section class="secondary-toolbar" aria-label="Visual and Audio Settings">
+        <div class="density-group" role="group" aria-label="Particle Density Control">
+          <span class="control-label">Particles:</span>
+          <div class="chip-container">
+            <button type="button" class="chip-btn" data-density="low" aria-pressed="false">Low</button>
+            <button type="button" class="chip-btn active" data-density="medium" aria-pressed="true">Med</button>
+            <button type="button" class="chip-btn" data-density="high" aria-pressed="false">High</button>
+          </div>
+        </div>
+
+        <div class="tip-banner" role="note">
+          <span class="tip-icon" aria-hidden="true">💡</span>
+          <span class="tip-text">The Rasengan automatically anchors to your palm center. Move closer to expand the sphere.</span>
+        </div>
+      </section>
+
+      <!-- Instructions Panel -->
+      <section class="instructions-card" aria-labelledby="instructions-heading">
+        <h2 id="instructions-heading" class="instructions-title">
+          <svg class="info-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="12" y1="16" x2="12" y2="12"></line>
+            <line x1="12" y1="8" x2="12.01" y2="8"></line>
+          </svg>
+          Operational Guidelines
+        </h2>
+        <div class="steps-grid">
+          <div class="step-card">
+            <div class="step-number" aria-hidden="true">01</div>
+            <div class="step-content">
+              <h3>Camera Access</h3>
+              <p>Click Start Camera to grant webcam access and stream your mirrored live feed.</p>
+            </div>
+          </div>
+
+          <div class="step-card">
+            <div class="step-number" aria-hidden="true">02</div>
+            <div class="step-content">
+              <h3>Hand Tracking</h3>
+              <p>Hold your open palm toward the camera. 21 optical landmarks detect and track your hand.</p>
+            </div>
+          </div>
+
+          <div class="step-card">
+            <div class="step-number" aria-hidden="true">03</div>
+            <div class="step-content">
+              <h3>Chakra Controls</h3>
+              <p>Guide the swirling vortex with your palm. Toggle synthetic audio, skeleton overlay, or particle density.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="app-footer">
+      <p>Rasengan Lite • Pure HTML5 Canvas 2D & Web Audio API Architecture</p>
+    </footer>
+  </div>
+
+  <!-- Main Application Logic (Vanilla JavaScript ES Module) -->
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>

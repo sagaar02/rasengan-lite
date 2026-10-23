@@ -1,0 +1,13 @@
+# Operating system and editor files
+.DS_Store
+Thumbs.db
+.vscode/
+
+# Local development dependencies and logs
+node_modules/
+npm-debug.log*
+
+# Environment files
+.env
+.env.*
+!.env.example
